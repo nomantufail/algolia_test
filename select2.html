@@ -3,52 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <title></title>
-
-    <script src="https://cdn.jsdelivr.net/jquery/2.1.4/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/autocomplete.js/0/autocomplete.jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/algoliasearch/3/algoliasearch.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/3.5.4/select2.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/3.5.4/select2.min.js"></script>
-    <script>
-        var client = algoliasearch('1RY9U48QD0', '736d29f5a2b6e538c1b0163761fde425');
-        var index = client.initIndex('nugree_locations');
-        $(document).ready(function() {
-            $('#test').select2({
-                placeholder: 'Search for people by name, email, company...',
-                ajax: {
-                    // Custom transport to call Algolia's API
-                    transport: function (params) {
-                        var q = params.data.query;
-                        delete params.data.query;
-                        index.search(q, params.data).then(function (content) {
-                            params.success(content);
-                        });
-                    },
-                    // build Algolia's query parameters
-                    data: function (term, page) {
-                        return {query: term, hitsPerPage: 10, page: (page - 1)};
-                    },
-                    // return Algolia's results
-                    results: function (data, page) {
-                        return {results: data.hits}
-                    }
-                },
-                // build result using the highlighted attributes
-                formatResult: function (contact) {
-                    return "<div class='select2-user-result'>" +
-                            'value' + " (value)" +
-                            '<br />' +
-                            '<small class="text-muted">hehehehe</small>' +
-                            "</div>";
-                },
-                formatSelection: function (contact) {
-                    return 'nomantufail100@gmail.com';
-                }
-            });
-        });
-    </script>
 </head>
 <body>
 <input type='hidden' name='input' id='test' style="width: 500px;" />
+<select id="simple-select2">
+    <option value="abcdef">1</option>
+    <option value="2">1</option>
+    <option value="3">1</option>
+</select>
+
+<script src="https://cdn.jsdelivr.net/jquery/2.1.4/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/algoliasearch/3/algoliasearch.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/3.5.4/select2.min.js"></script>
+<script>
+    var client = algoliasearch('1RY9U48QD0', '736d29f5a2b6e538c1b0163761fde425');
+    var index = client.initIndex('nugree_locations');
+    $(document).ready(function() {
+        $('#test').select2({
+            placeholder: 'Search for people by name, email, company...',
+            ajax: {
+                // Custom transport to call Algolia's API
+                transport: function (params) {
+                    var q = params.data.query;
+                    delete params.data.query;
+                    index.search(q, params.data).then(function (content) {
+                        params.success(content);
+                    });
+                },
+                // build Algolia's query parameters
+                data: function (term, page) {
+                    return {query: term, hitsPerPage: 10, page: (page - 1)};
+                },
+                // return Algolia's results
+                results: function (data, page) {
+                    return {results: data.hits}
+                }
+            },
+            // build result using the highlighted attributes
+            formatResult: function(contact) {
+                return "<div class='select2-user-result'>" +
+                        contact.location + " (" + contact.city_id + ")" +
+                        '<br />' +
+                        '<small class="text-muted">' + contact.location + '</small>' +
+                        "</div>";
+            },
+            formatSelection: function(contact) {
+                return contact.location;
+            }
+        });
+
+        $("#simple-select2").select2();
+    });
+</script>
 </body>
 </html>

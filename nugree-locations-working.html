@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <link rel="stylesheet" href="assets/select2.min.css">
+</head>
+<body>
+<form method="post" action="submit.php">
+    <input id="selectbox" class="js-data-example-ajax" name="repo">
+    <input type="submit">
+</form>
+<a id="btn">click</a>
+<script src="assets/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/algoliasearch/3/algoliasearch.min.js"></script>
+<script src="assets/select2.full.js"></script>
+<script>
+    $(document).on('click','#btn', function () {
+        console.log($("#selectbox option:selected"));
+    });
+
+    var client = algoliasearch('1RY9U48QD0', '736d29f5a2b6e538c1b0163761fde425');
+    var index = client.initIndex('nugree_locations');
+    $(document).ready(function() {
+        $(".js-data-example-ajax").select2({
+            ajax: {
+                //url: "https://api.github.com/search/repositories",
+                //url: "http://localhost/algolia_test/api.php",
+                dataType: 'json',
+                delay: 250,
+                transport: function (params) {
+                    var q = params.data.query;
+                    delete params.data.query;
+                    index.search(q, params.data).then(function (content) {
+                        params.success(content);
+                    });
+                },
+                data: function (term, page) {
+                    return {query: term, hitsPerPage: 10, page: (page - 1)};
+                },
+                processResults: function (data, params) {
+                    // parse the results into the format expected by Select2
+                    // since we are using custom formatting functions we do not need to
+                    // alter the remote JSON data, except to indicate that infinite
+                    // scrolling can be used
+                    params.page = params.page || 1;
+
+                    return {
+                        results: data.hits,
+                        pagination: {
+                            more: (params.page * 30) < data.nbHits
+                        }
+                    };
+                },
+                cache: true
+            },
+            escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
+            minimumInputLength: 1,
+            formatResult: function(location) {
+                return "<div class='select2-user-result'>" +
+                        location.location +
+                        '<br />' +
+                        '<small class="text-muted">' + location.city_id + '</small>' +
+                        "</div>";
+            },
+            formatSelection: function(location) {
+                return location.location;
+            }
+        });
+
+    });
+</script>
+</body>
+</html>
